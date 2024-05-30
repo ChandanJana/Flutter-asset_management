@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mindteck_iot/models/deallocation_reason_data.dart';
 import 'package:mindteck_iot/models/device/device_data.dart';
+import 'package:mindteck_iot/models/environment_monitor_sensor/sensor_list.dart';
+import 'package:mindteck_iot/models/locate_asset/data.dart';
 import 'package:mindteck_iot/models/site/site_data.dart';
 import 'package:mindteck_iot/models/site_level/site_level_data.dart';
 import 'package:mindteck_iot/models/tenant/tenant_data.dart';
@@ -43,6 +45,9 @@ final assetDataStateProvider = StateProvider<AssetData?>((ref) {
 final deviceListProvider = FutureProvider<List<DeviceData>>((ref) async {
   return await ref.watch(apiServicesProvider).loadAllDevice();
 });
+final sensorListProvider = FutureProvider<List<SensorData>>((ref) async {
+  return await ref.watch(apiServicesProvider).loadAllSensor();
+});
 
 final deviceAllocationListProvider =
     FutureProvider<List<DeviceData>>((ref) async {
@@ -67,7 +72,8 @@ final averageUpTimeProvider = FutureProvider<ResponseModel>((ref) async {
   return await ref.watch(apiServicesProvider).loadAverageUpTime();
 });
 
-final notificationCountProvider = FutureProvider<List<NotificationData>>((ref) async {
+final notificationCountProvider =
+    FutureProvider<List<NotificationData>>((ref) async {
   return await ref.watch(apiServicesProvider).loadNotificationCount();
 });
 final topTenDevicsProvider =
@@ -131,8 +137,26 @@ final addDeviceAllocationProvider = FutureProvider.autoDispose
     .family<ResponseModel, Map<String, dynamic>>((ref, data) async {
   // get the repository
   final areaRepo = ref.watch(apiServicesProvider);
-  // call method that returns a Future<ZonePathModel>, passing the areaId as an argument
   return areaRepo.addDeviceAllocation(data);
+});
+
+final saveDeviceIdsProvider = FutureProvider.autoDispose
+// additional areaId argument of type int
+    .family<ResponseModel, Map<String, dynamic>>((ref, data) async {
+  // get the repository
+  final areaRepo = ref.watch(apiServicesProvider);
+  return areaRepo.saveDeviceIds(data);
+});
+
+// final allotedDeviceIdsProvider = FutureProvider.autoDispose
+//     .family<List<String>, Map<String, dynamic>>((ref, data) async {
+//   // get the repository
+//   final areaRepo = ref.watch(apiServicesProvider);
+//   return areaRepo.loadAllAllocatedDeviceforEV();
+// });
+
+final allotedDeviceIdsProvider = FutureProvider<List<String>>((ref) async {
+  return await ref.watch(apiServicesProvider).loadAllAllocatedDeviceforEV();
 });
 
 final editDeviceAllocationProvider = FutureProvider.autoDispose
@@ -207,6 +231,17 @@ final levelImageBylevelIdProvider = FutureProvider.autoDispose
   return areaRepo.loadImageByLevelId(levelId);
 });
 
+final getAllZoneBoundaryByLevelIdProvider = FutureProvider.autoDispose
+    .family<List<Data>?, String?>((ref, levelId) async {
+  // Get the repository
+  final areaRepo = ref.watch(apiServicesProvider);
+  // Call method that returns a Future<AssetZoneData?>, passing the levelId as an argument
+  final assetZoneData = await areaRepo.getAllZoneBoundaryByLevelIdApi(levelId);
+
+  // Convert AssetZoneData to List<Data> if assetZoneData is not null
+  return assetZoneData?.data;
+});
+
 final assetDataProvider = FutureProvider.autoDispose
 // additional areaId argument of type int
     .family<AssetData?, AssetData?>((ref, assetData) async {
@@ -227,7 +262,7 @@ final assetTraceHistoryProvider = FutureProvider.autoDispose
 
 final assetDetailProvider = FutureProvider.autoDispose
 // additional areaId argument of type int
-    .family<AssetDetailData, String?>((ref, assetData) async {
+    .family<AssetDetailData?, String?>((ref, assetData) async {
   // get the repository
   final areaRepo = ref.watch(apiServicesProvider);
   // call method that returns a Future<ZonePathModel>, passing the areaId as an argument

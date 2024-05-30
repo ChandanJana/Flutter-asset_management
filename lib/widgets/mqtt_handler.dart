@@ -16,17 +16,23 @@ class MqttHandler with ChangeNotifier {
 
   //final String topic = 'gateway/rfid';
 
-  // For device telemetry
-  final String topic = 'edgecontroller/composite/telemetry';
+  // For device
+  //final String topic = 'edgecontroller/composite/telemetry';
+  String topic = 'livetrack/update/';
 
   // For alarm
   //final String topic = 'edgecontroller/composite/alarm';
   MapRefreshListener? mapRefresh;
 
-  Future<Object> connect(MapRefreshListener mapRefresh) async {
+  Future<Object> connect(
+      String hardwareId, MapRefreshListener mapRefresh) async {
     print('MQTT_LOGS::Mosquitto client called...');
+    topic = 'livetrack/update/';
+    topic = topic + hardwareId;
+    print('MQTT_LOGS::topic $topic');
     this.mapRefresh = mapRefresh;
-    client = MqttServerClient.withPort('172.16.5.149', 'flutter_client', 1883);
+    client =
+        MqttServerClient.withPort('192.168.11.163', 'flutter_client', 1883);
     client.logging(on: true);
     client.onConnected = onConnected;
     client.onDisconnected = onDisconnected;
@@ -53,7 +59,7 @@ class MqttHandler with ChangeNotifier {
     try {
       await client.connect();
     } catch (e) {
-      print('Exception: $e');
+      print('MQTT_LOGS::Exception: $e');
       client.disconnect();
     }
 
@@ -118,8 +124,8 @@ class MqttHandler with ChangeNotifier {
     print('MQTT_LOGS:: Ping response client callback invoked');
   }
 
-  void publishMessage(String message) {
-    const pubTopic = 'gateway/rfid';
+  void publishMessage(String hardwareId, String message) {
+    String pubTopic = 'service/livetrack/$hardwareId';
     final builder = MqttClientPayloadBuilder();
     builder.addString(message);
 

@@ -1,10 +1,9 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mindteck_iot/widgets/Charts/bar_graph_widget.dart';
-import 'package:mindteck_iot/widgets/Charts/circular_progress_bar.dart';
 import 'package:mindteck_iot/widgets/Charts/horizontal_bar_graph.dart';
 import 'package:mindteck_iot/widgets/Charts/pie_chart_widget.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../resource/app_resource.dart';
 import '../../widgets/Charts/up_time_progress_bar.dart';
@@ -22,8 +21,10 @@ class _BusinessAdminDashboardScreenState
 
   Future<void> _getValueFromSecureStorage() async {
     try {
-      FlutterSecureStorage storage = const FlutterSecureStorage();
-      role = await storage.read(key: AppDatabase.roleName);
+      // Create storage
+      SharedPreferences storage = await SharedPreferences.getInstance();
+
+      role = storage.getString(AppDatabase.roleName);
     } catch (e) {
       // Handle error
       print('Error reading value: $e');

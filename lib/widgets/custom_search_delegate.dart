@@ -7,6 +7,8 @@ import 'package:http/http.dart' as http;
 import 'package:mindteck_iot/models/allocation/allocation_data.dart';
 import 'package:mindteck_iot/models/asset/asset_data.dart';
 import 'package:mindteck_iot/models/device/device_data.dart';
+import 'package:mindteck_iot/models/environment_monitor_sensor/sensor_list.dart';
+import 'package:mindteck_iot/screen/environmental_monitoring/sensor_list_row.dart';
 import 'package:mindteck_iot/widgets/allocation_list_row.dart';
 import 'package:mindteck_iot/widgets/asset_list_row.dart';
 import 'package:mindteck_iot/widgets/device_list_row.dart';
@@ -69,6 +71,8 @@ class CustomSearchDelegate<T> extends SearchDelegate {
         return list.map((e) => AllocationData.fromJson(e)).toList();
       case 'Assets':
         return list.map((e) => AssetData.fromJson(e)).toList();
+      case 'Sensors':
+        return list.map((e) => SensorData.fromJson(e)).toList();
     }
 
     return [];
@@ -154,6 +158,12 @@ class CustomSearchDelegate<T> extends SearchDelegate {
                 item.assetName!.toLowerCase().contains(query.toLowerCase()))
             .toList();
         break;
+      case 'Sensors':
+        searchResult = (searchList as Iterable<SensorData>)
+            .where((item) =>
+                item.deviceName!.toLowerCase().contains(query.toLowerCase()))
+            .toList();
+        break;
     }
 
     print('buildResults optionName $optionName');
@@ -183,6 +193,12 @@ class CustomSearchDelegate<T> extends SearchDelegate {
                 //role: role,
                 assetData: item,
                 //onItemClick: (allocationData, actionType) {},
+              );
+            case 'Sensors':
+              return SensorManagementListRow(
+                sensorList: item,
+                role: role,
+                onItemClick: (data, actionType) {},
               );
           }
 
@@ -255,6 +271,15 @@ class CustomSearchDelegate<T> extends SearchDelegate {
                 //return item.firstName!.toLowerCase().contains(query.toLowerCase());
               }).toList();
         break;
+      case 'Sensors':
+        searchResult = query.isEmpty
+            ? []
+            : (searchList as Iterable<SensorData>).where((item) {
+                return _containsLetters(
+                    item.deviceName!.toLowerCase(), query.toLowerCase());
+                //return item.firstName!.toLowerCase().contains(query.toLowerCase());
+              }).toList();
+        break;
     }
 
     print('buildSuggestion optionName $optionName');
@@ -316,6 +341,9 @@ class CustomSearchDelegate<T> extends SearchDelegate {
           case 'Assets':
             searchString = searchResult[index].assetName!;
             break;
+          case 'Sensors':
+            searchString = searchResult[index].deviceName!;
+            break;
         }
 
         //final suggestion = suggestions[index];
@@ -356,6 +384,9 @@ class CustomSearchDelegate<T> extends SearchDelegate {
                 break;
               case 'Assets':
                 searchString = searchResult[index].assetName!;
+                break;
+              case 'Sensors':
+                searchString = searchResult[index].deviceName!;
                 break;
             }
 

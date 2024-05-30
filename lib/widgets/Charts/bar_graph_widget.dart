@@ -7,7 +7,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 import '../../models/notification_data.dart';
-import '../../models/pieChart/pie_chart_tenant_entities.dart';
 import '../../provider/api_data_provider.dart';
 import '../../provider/app_theme_provider.dart';
 import '../../resource/app_colors.dart';
@@ -730,7 +729,8 @@ class _BarGraphWidget extends ConsumerState<BarGraphWidget> {
           ),
           notificationData.when(
             data: (data) {
-              List<NotificationData> notificationList = data.map((e) => e).toList();
+              List<NotificationData> notificationList =
+                  data.map((e) => e).toList();
               if (notificationList.isEmpty) {
                 return Expanded(
                   child: Container(
@@ -739,10 +739,10 @@ class _BarGraphWidget extends ConsumerState<BarGraphWidget> {
                       'No data available',
                       textAlign: TextAlign.center,
                       style: GoogleFonts.latoTextTheme().titleLarge!.copyWith(
-                        fontWeight: FontWeight.normal,
-                        color: isDarkMode ? Colors.white : Colors.black,
-                        fontSize: 15,
-                      ),
+                            fontWeight: FontWeight.normal,
+                            color: isDarkMode ? Colors.white : Colors.black,
+                            fontSize: 15,
+                          ),
                     ),
                   ),
                 );

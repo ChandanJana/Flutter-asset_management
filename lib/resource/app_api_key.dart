@@ -29,6 +29,7 @@ class AppApiKey {
   static const String isActive = 'isActive';
   static const String tenantId = 'tenantId';
   static const String assetId = 'assetId';
+  static const String levelId = 'levelId';
   static const String tenantName = 'tenantName';
   static const String userEmail = 'userEmail';
   static const String siteId = 'siteId';

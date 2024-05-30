@@ -83,16 +83,16 @@ class MainDrawer extends ConsumerWidget {
                 if (userRole == Constants.system_administrator ||
                     userRole == Constants.business_administrator ||
                     userRole == Constants.operator)
-                  MenuItems(
-                    textSize: 15,
-                    iconSize: 18,
-                    menuName: AppText.deviceallocation,
-                    menuImg: Icons.home_repair_service_rounded,
-                    onMenuItemClick: onSelect,
-                  ),
-                // ],
-                // /),
-                /*if (userRole == Constants.system_administrator ||
+                  // MenuItems(
+                  //   textSize: 15,
+                  //   iconSize: 18,
+                  //   menuName: AppText.deviceallocation,
+                  //   menuImg: Icons.home_repair_service_rounded,
+                  //   onMenuItemClick: onSelect,
+                  // ),
+                  // ],
+                  // /),
+                  /*if (userRole == Constants.system_administrator ||
                     userRole == Constants.business_administrator ||
                     userRole == Constants.operator )
                   MenuItems(
@@ -120,14 +120,14 @@ class MainDrawer extends ConsumerWidget {
                     menuImg: Icons.manage_accounts,
                     onMenuItemClick: onSelect,
                   ),*/
-                if (userRole == Constants.system_administrator)
-                  MenuItems(
-                    textSize: 15,
-                    iconSize: 18,
-                    menuName: AppText.tenants,
-                    menuImg: Icons.people_alt,
-                    onMenuItemClick: onSelect,
-                  ),
+                  if (userRole == Constants.system_administrator)
+                    MenuItems(
+                      textSize: 15,
+                      iconSize: 18,
+                      menuName: AppText.tenants,
+                      menuImg: Icons.people_alt,
+                      onMenuItemClick: onSelect,
+                    ),
 
                 if (userRole == Constants.business_administrator ||
                     userRole == Constants.system_administrator)
@@ -151,13 +151,13 @@ class MainDrawer extends ConsumerWidget {
                           menuName: AppText.assetDashBoard,
                           menuImg: Icons.home,
                           onMenuItemClick: onSelect),
-                      /*MenuItems(
+                      MenuItems(
                         textSize: 15,
                         iconSize: 18,
                         menuName: AppText.allAssets,
                         menuImg: Icons.devices_other,
                         onMenuItemClick: onSelect,
-                      ),*/
+                      ),
                       MenuItems(
                         textSize: 15,
                         iconSize: 18,
@@ -167,6 +167,55 @@ class MainDrawer extends ConsumerWidget {
                       ),
                     ],
                   ),
+                ExpansionTile(
+                  shape: Border(),
+                  leading: const Icon(
+                    Icons.dashboard_sharp,
+                    size: 20,
+                  ),
+                  title: Text(
+                    AppText.environmental_monitoring,
+                    style: Theme.of(context).textTheme.titleSmall!.copyWith(
+                          color: Theme.of(context).colorScheme.onBackground,
+                          fontSize: 15,
+                        ),
+                  ),
+                  children: [
+                    MenuItems(
+                        textSize: 15,
+                        iconSize: 18,
+                        menuName: AppText.environmental_monitoring_dashboard,
+                        menuImg: Icons.home,
+                        onMenuItemClick: onSelect),
+                    // MenuItems(
+                    //     textSize: 15,
+                    //     iconSize: 18,
+                    //     menuName: AppText.sensor_management,
+                    //     menuImg: Icons.manage_search,
+                    //     onMenuItemClick: onSelect),
+                    // MenuItems(
+                    //     textSize: 15,
+                    //     iconSize: 18,
+                    //     menuName: AppText.alarm,
+                    //     menuImg: Icons.alarm,
+                    //     onMenuItemClick: onSelect,
+                    //   ),
+                    MenuItems(
+                      textSize: 15,
+                      iconSize: 18,
+                      menuName: AppText.geoview,
+                      menuImg: Icons.location_on_sharp,
+                      onMenuItemClick: onSelect,
+                    ),
+                    MenuItems(
+                      textSize: 15,
+                      iconSize: 18,
+                      menuName: AppText.sensorview,
+                      menuImg: Icons.sensors,
+                      onMenuItemClick: onSelect,
+                    ),
+                  ],
+                ),
 
                 // MenuItems(
                 //   textSize: 18,

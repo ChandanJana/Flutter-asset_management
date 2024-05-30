@@ -37,7 +37,7 @@ class AppText {
   static const String deviceManagement = "Device Management";
   static const String application = "Application";
   static const String allocation_id = "ID";
-  static const String parent_divice = "Parent Device";
+  static const String parent_device = "Parent Device";
   static const String sites = "Sites";
   static const String home = "Home";
   static const String tenants = "Tenants";
@@ -108,4 +108,15 @@ class AppText {
 
   static const String fullView = 'Full View';
   static const String explore = 'Explore';
+
+  //Environmental Monitoring
+  static const String environmental_monitoring = "Environmental Monitoring";
+  static const String environmental_monitoring_dashboard =
+      "Environmental Dashboard";
+  static const String geoview = "Geo view";
+  static const String sensorview = "Sensor View";
+  static const String alarm = "Alarm";
+  static const String sensor = "Sensor";
+  static const String sensor_management = "Sensor Management";
+  static const String serial_no = "Serial No";
 }

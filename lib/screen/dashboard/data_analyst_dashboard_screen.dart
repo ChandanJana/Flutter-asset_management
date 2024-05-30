@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mindteck_iot/widgets/Charts/bar_graph_widget.dart';
-import 'package:mindteck_iot/widgets/Charts/circular_progress_bar.dart';
 import 'package:mindteck_iot/widgets/Charts/horizontal_bar_graph.dart';
 import 'package:mindteck_iot/widgets/Charts/pie_chart_widget.dart';
 

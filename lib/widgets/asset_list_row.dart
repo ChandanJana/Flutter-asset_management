@@ -123,7 +123,7 @@ class AssetListRow extends StatelessWidget {
                                   width: 5), // Add space between text spans
                             ),
                             TextSpan(
-                              text: assetData.deviceName!,
+                              text: assetData.deviceName,
                               style: TextStyle(
                                 color: AppColors.contentColorWhite,
                                 fontSize: 15,

@@ -7,7 +7,6 @@ import 'package:connectivity/connectivity.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -18,11 +17,12 @@ import 'package:mindteck_iot/resource/app_api_key.dart';
 import 'package:mindteck_iot/resource/app_colors.dart';
 import 'package:mindteck_iot/resource/app_database.dart';
 import 'package:mindteck_iot/resource/app_text.dart';
-import 'package:mindteck_iot/screen/forget_password_screen.dart';
+import 'package:mindteck_iot/screen/forget_password/forget_password_screen.dart';
 import 'package:mindteck_iot/screen/main_screen.dart';
 import 'package:mindteck_iot/utils/database_helper.dart';
 import 'package:mindteck_iot/utils/utils.dart';
 import 'package:mindteck_iot/widgets/error_snackbar.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
@@ -158,26 +158,17 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
               // AppDatabase.isActive: loginModel.data!.user!.isActive,
             });
             print('User insertId: $insertId');
-            // Create storage
-            const storage = FlutterSecureStorage();
+            SharedPreferences storage = await SharedPreferences.getInstance();
             //Write token value
-            await storage.write(
-                key: AppDatabase.token, value: loginModel.data!.token);
+            storage.setString(AppDatabase.token, loginModel.data!.token!);
             //Write userId value
-            await storage.write(
-                key: AppDatabase.userId, value: loginModel.data!.user!.userId);
+            storage.setString(AppDatabase.userId, loginModel.data!.user!.userId!);
             //Write userId value
-            await storage.write(
-                key: AppDatabase.tenantId,
-                value: loginModel.data!.tenant!.tenantId);
+            storage.setString(AppDatabase.tenantId, loginModel.data!.tenant!.tenantId!);
             //Write userId value
-            await storage.write(
-                key: AppDatabase.tenantName,
-                value: loginModel.data!.tenant!.tenantName);
+            storage.setString(AppDatabase.tenantName, loginModel.data!.tenant!.tenantName!);
             //Write role value
-            await storage.write(
-                key: AppDatabase.roleName,
-                value: loginModel.data!.user!.roleName);
+            storage.setString(AppDatabase.roleName, loginModel.data!.user!.roleName!);
 
             setState(() {
               _isLogged = true;

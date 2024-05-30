@@ -15,28 +15,32 @@ final lightTheme = ThemeData.light();
 final darkTheme = ThemeData.dark();
 
 class AppTheme extends ChangeNotifier {
-  AppTheme(this._prefs);
+  AppTheme(this._prefs) {
+    // Initialize theme according to system setting
+    final brightness = WidgetsBinding.instance.window.platformBrightness;
+    if (brightness == Brightness.dark) {
+      _isDarkMode = true;
+    } else {
+      _isDarkMode = false;
+    }
+  }
 
   final SharedPreferences _prefs;
+  bool _isDarkMode = false;
 
-  /// Get the current value from SharedPreferences.
-  bool getTheme() => _prefs.getBool('isDarkMode') ?? false;
+  bool getTheme() => _isDarkMode;
 
-  /// Store the current value in SharedPreferences.
+  void toggleTheme() {
+    _isDarkMode = !_isDarkMode;
+    _prefs.setBool(
+        'isDarkMode', _isDarkMode); // Update theme setting in SharedPreferences
+    notifyListeners();
+  }
+
   void setTheme(bool isDarkMode) {
-    _prefs.setBool('isDarkMode', isDarkMode);
-
+    _isDarkMode = isDarkMode;
+    _prefs.setBool(
+        'isDarkMode', _isDarkMode); // Update theme setting in SharedPreferences
     notifyListeners();
-  }
-
-  void setThemeLight(bool isDarkMode) {
-    _prefs.clear();
-    notifyListeners();
-  }
-
-  void toggleThemeOnLogout(ProviderContainer container) {
-    final currentTheme = container.read(appThemeProvider);
-    //final newTheme = currentTheme == LightTheme ? DarkTheme : LightTheme;
-    container.read(appThemeProvider)._prefs.setBool('isDarkMode', false);
   }
 }

@@ -193,7 +193,7 @@ class AllocationListRow extends ConsumerWidget {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    addRow(isDarkMode, AppText.parent_divice,
+                    addRow(isDarkMode, AppText.parent_device,
                         allocationData.parentDeviceName ?? '', context),
                   ],
                 ),

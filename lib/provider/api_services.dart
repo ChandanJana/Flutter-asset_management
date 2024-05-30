@@ -2,12 +2,15 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:mindteck_iot/models/application/application_model.dart';
 import 'package:mindteck_iot/models/asset/asset_data.dart';
 import 'package:mindteck_iot/models/deallocation_reason_data.dart';
 import 'package:mindteck_iot/models/device/device_model.dart';
+import 'package:mindteck_iot/models/environment_monitor_sensor/sensor_list.dart';
+import 'package:mindteck_iot/models/environment_monitor_sensor/sensor_model.dart';
+import 'package:mindteck_iot/models/locate_asset/asset_zone_data.dart';
+import 'package:mindteck_iot/models/locate_asset/asset_zone_model.dart';
 import 'package:mindteck_iot/models/notification_data.dart';
 import 'package:mindteck_iot/models/pieChart/pie_chart_model.dart';
 import 'package:mindteck_iot/models/site/site_data.dart';
@@ -19,6 +22,7 @@ import 'package:mindteck_iot/models/tenant/tenant_model.dart';
 import 'package:mindteck_iot/models/top_ten_device_data.dart';
 import 'package:mindteck_iot/resource/app_api.dart';
 import 'package:mindteck_iot/resource/app_api_key.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/allocation/allocation_data.dart';
 import '../models/allocation/allocation_model.dart';
@@ -149,9 +153,9 @@ class ApiServices {
     const String zoneUrl = AppApi.getAllAssetsApi;
 
     // Create storage
-    const storage = FlutterSecureStorage();
+    SharedPreferences storage = await SharedPreferences.getInstance();
     // Read token value
-    String? authToken = await storage.read(key: AppDatabase.token);
+    String? authToken = storage.getString(AppDatabase.token);
     if (kDebugMode) {
       print('authToken $authToken');
     }
@@ -194,9 +198,9 @@ class ApiServices {
     const String pieChartUrl = AppApi.getTenantDashboardSummaryApi;
 
     // Create storage
-    const storage = FlutterSecureStorage();
+    SharedPreferences storage = await SharedPreferences.getInstance();
     // Read token value
-    String? authToken = await storage.read(key: AppDatabase.token);
+    String? authToken = storage.getString(AppDatabase.token);
     if (kDebugMode) {
       print('authToken $authToken');
     }
@@ -239,10 +243,10 @@ class ApiServices {
     const String devicelistUrl = AppApi.getDeviceListApi;
 
     // Create storage
-    const storage = FlutterSecureStorage();
+    SharedPreferences storage = await SharedPreferences.getInstance();
 
     // Read token value
-    String? authToken = await storage.read(key: AppDatabase.token);
+    String? authToken = storage.getString(AppDatabase.token);
     if (kDebugMode) {
       print('authToken $authToken');
     }
@@ -281,14 +285,115 @@ class ApiServices {
     }
   }
 
+  Future<List<SensorData>> loadAllSensor() async {
+    const String sensorlistUrl = AppApi.getDeviceForAssetEnvironmentMonitoring;
+
+    // Create storage
+    SharedPreferences storage = await SharedPreferences.getInstance();
+
+    // Read token value
+    String? authToken = storage.getString(AppDatabase.token);
+    if (kDebugMode) {
+      print('authToken $authToken');
+    }
+
+    final Map<String, String> headers = {
+      AppApiKey.contentTypeKey: AppApiKey.contentTypeValue,
+      AppApiKey.acceptKey: AppApiKey.acceptValue,
+      AppApiKey.authorizationKey: '${AppApiKey.bearer}$authToken',
+      // Add other headers as needed, e.g., 'Authorization'
+    };
+
+    if (kDebugMode) {
+      print('sensorListurl $sensorlistUrl');
+      print('headers $headers');
+    }
+
+    final response = await http.get(Uri.parse(sensorlistUrl), headers: headers);
+    if (kDebugMode) {
+      print('response.statusCode ${response.statusCode}');
+    }
+
+    if (response.statusCode == 200) {
+      Map<String, dynamic> responseBody = json.decode(response.body);
+      print("GetSensorResponseBody. $responseBody");
+      SensorModel getSensorModel = SensorModel.fromJson(responseBody);
+      List<SensorData> sensorlist = getSensorModel.data;
+
+      if (kDebugMode) {
+        print('Sensor fetch. $responseBody');
+      }
+
+      return sensorlist;
+    } else {
+      throw Exception(
+          'Failed to fetch data. Please try again later! ${response.reasonPhrase}');
+    }
+  }
+
+  Future<List<String>> loadAllAllocatedDeviceforEV() async {
+    const String allocatedsensorlistUrl =
+        AppApi.GetListOfAllocatedDeviceForEnvironment;
+
+    // Create storage
+    SharedPreferences storage = await SharedPreferences.getInstance();
+
+    // Read token value
+    String? authToken = storage.getString(AppDatabase.token);
+    if (kDebugMode) {
+      print('authToken $authToken');
+    }
+
+    final Map<String, String> headers = {
+      AppApiKey.contentTypeKey: AppApiKey.contentTypeValue,
+      AppApiKey.acceptKey: AppApiKey.acceptValue,
+      AppApiKey.authorizationKey: '${AppApiKey.bearer}$authToken',
+      // Add other headers as needed, e.g., 'Authorization'
+    };
+
+    if (kDebugMode) {
+      print('allocatedsensorlistUrl $allocatedsensorlistUrl');
+      print('headers $headers');
+    }
+
+    final response =
+        await http.get(Uri.parse(allocatedsensorlistUrl), headers: headers);
+    if (kDebugMode) {
+      print('response.statusCode ${response.statusCode}');
+    }
+
+    // Handle the response
+    if (response.statusCode == 200) {
+      print('Request was successful.');
+
+      // Parse the response body as JSON
+      dynamic responseBody = jsonDecode(response.body);
+
+      // Check if the response is a list
+      if (responseBody is List) {
+        // Process the list of device IDs
+        List<String> deviceIds = List<String>.from(responseBody);
+        print('Received device IDs: $deviceIds');
+        return deviceIds;
+      } else {
+        print('Response is not a list.');
+        return [];
+      }
+    } else {
+      print('Request failed with status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+      return [];
+    }
+  }
+
   Future<List<ApplicationData>> loadAllApplications() async {
     const String applicationlistUrl = AppApi.getApplicationListApi;
 
     // Create storage
-    const storage = FlutterSecureStorage();
+    SharedPreferences storage = await SharedPreferences.getInstance();
 
     // Read token value
-    String? authToken = await storage.read(key: AppDatabase.token);
+    String? authToken = storage.getString(AppDatabase.token);
     if (kDebugMode) {
       print('authToken $authToken');
     }
@@ -334,10 +439,10 @@ class ApiServices {
     const String sitelistUrl = AppApi.getSiteApi;
 
     // Create storage
-    const storage = FlutterSecureStorage();
+    SharedPreferences storage = await SharedPreferences.getInstance();
 
     // Read token value
-    String? authToken = await storage.read(key: AppDatabase.token);
+    String? authToken = storage.getString(AppDatabase.token);
     if (kDebugMode) {
       print('authToken $authToken');
     }
@@ -381,10 +486,10 @@ class ApiServices {
     const String upTimeUrl = AppApi.getUptimeApi;
 
     // Create storage
-    const storage = FlutterSecureStorage();
+    SharedPreferences storage = await SharedPreferences.getInstance();
 
     // Read token value
-    String? authToken = await storage.read(key: AppDatabase.token);
+    String? authToken = storage.getString(AppDatabase.token);
     if (kDebugMode) {
       print('authToken $authToken');
     }
@@ -435,10 +540,10 @@ class ApiServices {
     const String notificationsCountUrl = AppApi.getNotificationsCountApi;
 
     // Create storage
-    const storage = FlutterSecureStorage();
+    SharedPreferences storage = await SharedPreferences.getInstance();
 
     // Read token value
-    String? authToken = await storage.read(key: AppDatabase.token);
+    String? authToken = storage.getString(AppDatabase.token);
     if (kDebugMode) {
       print('authToken $authToken');
     }
@@ -481,10 +586,10 @@ class ApiServices {
     const String topTenDevicesUrl = AppApi.getTopTenDevicesApi;
 
     // Create storage
-    const storage = FlutterSecureStorage();
+    SharedPreferences storage = await SharedPreferences.getInstance();
 
     // Read token value
-    String? authToken = await storage.read(key: AppDatabase.token);
+    String? authToken = storage.getString(AppDatabase.token);
     if (kDebugMode) {
       print('authToken $authToken');
     }
@@ -530,10 +635,10 @@ class ApiServices {
     const String deviceCategoryListUrl = AppApi.getDeviceCategory;
 
     // Create storage
-    const storage = FlutterSecureStorage();
+    SharedPreferences storage = await SharedPreferences.getInstance();
 
     // Read token value
-    String? authToken = await storage.read(key: AppDatabase.token);
+    String? authToken = storage.getString(AppDatabase.token);
     if (kDebugMode) {
       print('authToken $authToken');
     }
@@ -578,10 +683,10 @@ class ApiServices {
     const String devicestatusListUrl = AppApi.getDeviceLifeCycle;
 
     // Create storage
-    const storage = FlutterSecureStorage();
+    SharedPreferences storage = await SharedPreferences.getInstance();
 
     // Read token value
-    String? authToken = await storage.read(key: AppDatabase.token);
+    String? authToken = storage.getString(AppDatabase.token);
     if (kDebugMode) {
       print('authToken $authToken');
     }
@@ -631,10 +736,10 @@ class ApiServices {
     const String tenantUrl = AppApi.getAllTenantsApi;
 
     // Create storage
-    const storage = FlutterSecureStorage();
+    SharedPreferences storage = await SharedPreferences.getInstance();
 
     // Read token value
-    String? authToken = await storage.read(key: AppDatabase.token);
+    String? authToken = storage.getString(AppDatabase.token);
     if (kDebugMode) {
       print('authToken $authToken');
     }
@@ -682,10 +787,10 @@ class ApiServices {
     const String addDeviceUrl = AppApi.addDeviceApi;
 
     // Create storage
-    const storage = FlutterSecureStorage();
+    SharedPreferences storage = await SharedPreferences.getInstance();
 
     // Read token value
-    String? authToken = await storage.read(key: AppDatabase.token);
+    String? authToken = storage.getString(AppDatabase.token);
     if (kDebugMode) {
       print('authToken $authToken');
     }
@@ -769,10 +874,10 @@ class ApiServices {
     const String editDeviceUrl = AppApi.updateDeviceApi;
 
     // Create storage
-    const storage = FlutterSecureStorage();
+    SharedPreferences storage = await SharedPreferences.getInstance();
 
     // Read token value
-    String? authToken = await storage.read(key: AppDatabase.token);
+    String? authToken = storage.getString(AppDatabase.token);
     if (kDebugMode) {
       print('editDeviceUrl $editDeviceUrl');
       print('authToken $authToken');
@@ -830,14 +935,59 @@ class ApiServices {
     }
   }
 
+  Future<ResponseModel> saveDeviceIds(Map<String, dynamic> data) async {
+    const String saveDeviceIdsUrl = AppApi.saveDeviceIds;
+
+    // Create storage
+    SharedPreferences storage = await SharedPreferences.getInstance();
+
+    // Read token value
+    String? authToken = storage.getString(AppDatabase.token);
+    if (kDebugMode) {
+      print('authToken $authToken');
+      print('saveDeviceIdsUrl $saveDeviceIdsUrl');
+    }
+
+    final Map<String, String> headers = {
+      AppApiKey.contentTypeKey: AppApiKey.contentTypeValue,
+      AppApiKey.acceptKey: AppApiKey.acceptValue,
+      AppApiKey.authorizationKey: '${AppApiKey.bearer}$authToken',
+    };
+
+    final response = await http.post(
+      Uri.parse(saveDeviceIdsUrl),
+      headers: headers,
+      body: json.encode(data),
+    );
+
+    if (kDebugMode) {
+      print('response.statusCode ${response.statusCode}');
+    }
+
+    if (response.statusCode == 200) {
+      final responseBody = json.decode(response.body);
+      print("saveDeviceIds ResponseBody. $responseBody");
+      ResponseModel responseModel = ResponseModel.fromJson(responseBody);
+
+      if (kDebugMode) {
+        print('saveDeviceIds . $responseModel');
+      }
+
+      return responseModel;
+    } else {
+      throw Exception(
+          'Failed to saveDeviceId. Please try again later! ${response.reasonPhrase}');
+    }
+  }
+
   Future<ResponseModel> addDeviceAllocation(Map<String, dynamic> data) async {
     const String addDeviceAllocationUrl = AppApi.addAllocationApi;
 
     // Create storage
-    const storage = FlutterSecureStorage();
+    SharedPreferences storage = await SharedPreferences.getInstance();
 
     // Read token value
-    String? authToken = await storage.read(key: AppDatabase.token);
+    String? authToken = storage.getString(AppDatabase.token);
     if (kDebugMode) {
       print('authToken $authToken');
       print('addDeviceAllocationUrl $addDeviceAllocationUrl');
@@ -879,10 +1029,10 @@ class ApiServices {
     const String editAllocationUrl = AppApi.editAllocationApi;
 
     // Create storage
-    const storage = FlutterSecureStorage();
+    SharedPreferences storage = await SharedPreferences.getInstance();
 
     // Read token value
-    String? authToken = await storage.read(key: AppDatabase.token);
+    String? authToken = storage.getString(AppDatabase.token);
     if (kDebugMode) {
       print('authToken $authToken');
       print('editAllocationUrl $editAllocationUrl');
@@ -925,10 +1075,10 @@ class ApiServices {
     const String removeDeviceAllocationUrl = AppApi.removeDeviceAllocationApi;
 
     // Create storage
-    const storage = FlutterSecureStorage();
+    SharedPreferences storage = await SharedPreferences.getInstance();
 
     // Read token value
-    String? authToken = await storage.read(key: AppDatabase.token);
+    String? authToken = storage.getString(AppDatabase.token);
     if (kDebugMode) {
       print('authToken $authToken');
       print('removeDeviceAllocationUrl $removeDeviceAllocationUrl');
@@ -971,10 +1121,10 @@ class ApiServices {
     const String uomUrl = AppApi.getUnitMasterApi;
 
     // Create storage
-    const storage = FlutterSecureStorage();
+    SharedPreferences storage = await SharedPreferences.getInstance();
 
     // Read token value
-    String? authToken = await storage.read(key: AppDatabase.token);
+    String? authToken = storage.getString(AppDatabase.token);
     if (kDebugMode) {
       print('authToken $authToken');
     }
@@ -1024,10 +1174,10 @@ class ApiServices {
     const String allocationUrl = AppApi.getAllocationApi;
 
     // Create storage
-    const storage = FlutterSecureStorage();
+    SharedPreferences storage = await SharedPreferences.getInstance();
 
     // Read token value
-    String? authToken = await storage.read(key: AppDatabase.token);
+    String? authToken = storage.getString(AppDatabase.token);
     if (kDebugMode) {
       print('authToken $authToken');
     }
@@ -1076,10 +1226,10 @@ class ApiServices {
     const String getDeviceForAllocationUrl = AppApi.getDeviceForAllocationApi;
 
     // Create storage
-    const storage = FlutterSecureStorage();
+    SharedPreferences storage = await SharedPreferences.getInstance();
 
     // Read token value
-    String? authToken = await storage.read(key: AppDatabase.token);
+    String? authToken = storage.getString(AppDatabase.token);
     if (kDebugMode) {
       print('authToken $authToken');
     }
@@ -1130,10 +1280,10 @@ class ApiServices {
         AppApi.getDeviceDeallocationReasonApi;
 
     // Create storage
-    const storage = FlutterSecureStorage();
+    SharedPreferences storage = await SharedPreferences.getInstance();
 
     // Read token value
-    String? authToken = await storage.read(key: AppDatabase.token);
+    String? authToken = storage.getString(AppDatabase.token);
     if (kDebugMode) {
       print('authToken $authToken');
     }
@@ -1186,10 +1336,10 @@ class ApiServices {
           "${AppApi.getParentDeviceApi}${AppApiKey.deviceId}=${deviceData.deviceId}";
 
       // Create storage
-      const storage = FlutterSecureStorage();
+      SharedPreferences storage = await SharedPreferences.getInstance();
 
       // Read token value
-      String? authToken = await storage.read(key: AppDatabase.token);
+      String? authToken = storage.getString(AppDatabase.token);
       if (kDebugMode) {
         print('authToken $authToken');
       }
@@ -1245,10 +1395,10 @@ class ApiServices {
           "${AppApi.getLevelBySiteIdApi}${AppApiKey.siteId}=${siteData?.siteId}";
 
       // Create storage
-      const storage = FlutterSecureStorage();
+      SharedPreferences storage = await SharedPreferences.getInstance();
 
       // Read token value
-      String? authToken = await storage.read(key: AppDatabase.token);
+      String? authToken = storage.getString(AppDatabase.token);
       if (kDebugMode) {
         print('authToken $authToken');
       }
@@ -1303,10 +1453,10 @@ class ApiServices {
           "${AppApi.getSiteByIdApi}${AppApiKey.id}=${siteData.siteId}";
 
       // Create storage
-      const storage = FlutterSecureStorage();
+      SharedPreferences storage = await SharedPreferences.getInstance();
 
       // Read token value
-      String? authToken = await storage.read(key: AppDatabase.token);
+      String? authToken = storage.getString(AppDatabase.token);
       if (kDebugMode) {
         print('authToken $authToken');
       }
@@ -1355,10 +1505,10 @@ class ApiServices {
           "${AppApi.getImageByLevelIdApi}${AppApiKey.id}=$levelId";
 
       // Create storage
-      const storage = FlutterSecureStorage();
+      SharedPreferences storage = await SharedPreferences.getInstance();
 
       // Read token value
-      String? authToken = await storage.read(key: AppDatabase.token);
+      String? authToken = storage.getString(AppDatabase.token);
       if (kDebugMode) {
         print('authToken $authToken');
       }
@@ -1400,6 +1550,57 @@ class ApiServices {
     }
   }
 
+  Future<AssetZoneData?> getAllZoneBoundaryByLevelIdApi(String? levelId) async {
+    if (levelId != null) {
+      String getAllZoneBoundaryByLevelIdApiUrl =
+          "${AppApi.getAllZoneBoundaryByLevelIdApi}${AppApiKey.levelId}=$levelId";
+
+      // Create storage
+      SharedPreferences storage = await SharedPreferences.getInstance();
+
+      // Read token value
+      String? authToken = storage.getString(AppDatabase.token);
+      if (kDebugMode) {
+        print('authToken $authToken');
+      }
+
+      final headers = {
+        AppApiKey.contentTypeKey: AppApiKey.contentTypeValue,
+        AppApiKey.acceptKey: AppApiKey.acceptValue,
+        AppApiKey.authorizationKey: '${AppApiKey.bearer}$authToken',
+      };
+
+      if (kDebugMode) {
+        print(
+            'getAllZoneBoundaryByLevelIdApiUrl $getAllZoneBoundaryByLevelIdApiUrl');
+        print('headers $headers');
+      }
+
+      final response = await http
+          .get(Uri.parse(getAllZoneBoundaryByLevelIdApiUrl), headers: headers);
+      if (kDebugMode) {
+        print('Zone Boundary response statusCode ${response.statusCode}');
+      }
+
+      if (response.statusCode == 200) {
+        final responseBody = json.decode(response.body);
+        print("Zone Boundary ResponseBody. $responseBody");
+        AssetZoneModel assetZoneModel = AssetZoneModel.fromJson(responseBody);
+
+        AssetZoneData? assetZoneData = assetZoneModel.data;
+
+        if (kDebugMode) {
+          print('Zone Boundary fetched. $assetZoneModel');
+        }
+
+        return assetZoneData;
+      } else {
+        throw Exception(
+            'Failed to fetch Zone Boundary. Please try again later! ${response.reasonPhrase}');
+      }
+    }
+  }
+
   Future<List<SiteData>> loadSiteByTenantId(String? tenantId) async {
     //try {
     if (tenantId != null) {
@@ -1407,10 +1608,10 @@ class ApiServices {
           "${AppApi.getSiteByTenantIdApi}${AppApiKey.tenantId}=$tenantId";
 
       // Create storage
-      const storage = FlutterSecureStorage();
+      SharedPreferences storage = await SharedPreferences.getInstance();
 
       // Read token value
-      String? authToken = await storage.read(key: AppDatabase.token);
+      String? authToken = storage.getString(AppDatabase.token);
       if (kDebugMode) {
         print('authToken $authToken');
       }
@@ -1465,10 +1666,10 @@ class ApiServices {
       String getAssetByIdUrl = "${AppApi.getAssetByIdApi}${assetData.assetId}";
 
       // Create storage
-      const storage = FlutterSecureStorage();
+      SharedPreferences storage = await SharedPreferences.getInstance();
 
       // Read token value
-      String? authToken = await storage.read(key: AppDatabase.token);
+      String? authToken = storage.getString(AppDatabase.token);
       if (kDebugMode) {
         print('authToken $authToken');
       }
@@ -1523,10 +1724,10 @@ class ApiServices {
           "${AppApi.getAssetTraceHistoryApi}${AppApiKey.assetId}=${assetData.assetId}";
 
       // Create storage
-      const storage = FlutterSecureStorage();
+      SharedPreferences storage = await SharedPreferences.getInstance();
 
       // Read token value
-      String? authToken = await storage.read(key: AppDatabase.token);
+      String? authToken = storage.getString(AppDatabase.token);
       if (kDebugMode) {
         print('authToken $authToken');
       }
@@ -1574,18 +1775,17 @@ class ApiServices {
     }*/
   }
 
-  Future<AssetDetailData> getAssetDetail(
-      String? assetId) async {
+  Future<AssetDetailData?> getAssetDetail(String? assetId) async {
     //try {
     if (assetId != null) {
       String getAssetDetailUrl =
           "${AppApi.getLatestAssetLoacationApi}${AppApiKey.assetId}=${assetId}";
 
       // Create storage
-      const storage = FlutterSecureStorage();
+      SharedPreferences storage = await SharedPreferences.getInstance();
 
       // Read token value
-      String? authToken = await storage.read(key: AppDatabase.token);
+      String? authToken = storage.getString(AppDatabase.token);
       if (kDebugMode) {
         print('authToken $authToken');
       }
@@ -1610,8 +1810,9 @@ class ApiServices {
       if (response.statusCode == 200) {
         final responseBody = json.decode(response.body);
         print("Asset Detail ResponseBody. $responseBody");
-        AssetDetailModel assetDetailModel = AssetDetailModel.fromJson(responseBody);
-        AssetDetailData assetDetailData = assetDetailModel.data;
+        AssetDetailModel assetDetailModel =
+            AssetDetailModel.fromJson(responseBody);
+        AssetDetailData? assetDetailData = assetDetailModel.data;
 
         if (kDebugMode) {
           print('Asset Detail fetched. $assetDetailData');
@@ -1624,7 +1825,7 @@ class ApiServices {
       }
     }
 
-    return Map() as AssetDetailData;
+    return null;
     /*} catch (e) {
       ServerErrorPopup.showServerError(this.context, '$e');
       print('Error: $e');

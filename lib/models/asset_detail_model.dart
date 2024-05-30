@@ -6,7 +6,7 @@ import 'asset_detail_data.dart';
 ///
 
 class AssetDetailModel {
-  AssetDetailData data = Map() as AssetDetailData;
+  AssetDetailData? data;
   String? responseMessage;
   int? responseId;
   int? responseCode;
@@ -14,13 +14,15 @@ class AssetDetailModel {
 
   AssetDetailModel(
       {required this.data,
-        this.responseMessage,
-        this.responseId,
-        this.responseCode,
-        this.errorCode});
+      this.responseMessage,
+      this.responseId,
+      this.responseCode,
+      this.errorCode});
 
   AssetDetailModel.fromJson(Map<String, dynamic> json) {
-    data = (json['data'] != null ? new AssetDetailData.fromJson(json['data']) : null)!;
+    data = (json['data'] != null
+        ? new AssetDetailData.fromJson(json['data'])
+        : null)!;
     responseMessage = json['responseMessage'];
     responseId = json['responseId'];
     responseCode = json['responseCode'];

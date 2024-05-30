@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:mindteck_iot/screen/full_map_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/tenant/tenant_data.dart';
 import '../provider/api_data_provider.dart';
@@ -32,8 +32,8 @@ class _OSMMapScreenState extends ConsumerState<OSMMapScreen> {
 
   Future<void> _getValueFromSecureStorage() async {
     try {
-      FlutterSecureStorage storage = const FlutterSecureStorage();
-      role = await storage.read(key: AppDatabase.roleName);
+      SharedPreferences storage = await SharedPreferences.getInstance();
+      role = storage.getString(AppDatabase.roleName);
       print('OSM role $role');
     } catch (e) {
       // Handle error

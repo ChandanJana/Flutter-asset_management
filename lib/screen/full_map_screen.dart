@@ -5,13 +5,13 @@ import 'package:animated_custom_dropdown/custom_dropdown.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:mindteck_iot/models/telemetry/telemetry_data.dart';
 import 'package:mindteck_iot/utils/map_refresh_listener.dart';
 import 'package:mindteck_iot/widgets/mqtt_handler.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/site/site_data.dart';
 import '../models/site_map_data.dart';
@@ -52,9 +52,10 @@ class _FullMapScreenState extends ConsumerState<FullMapScreen>
 
   Future<void> _getValueFromSecureStorage() async {
     try {
-      FlutterSecureStorage storage = const FlutterSecureStorage();
-      role = await storage.read(key: AppDatabase.roleName);
-      loginTenantId = await storage.read(key: AppDatabase.tenantId);
+      // Create storage
+      SharedPreferences storage = await SharedPreferences.getInstance();
+      role = storage.getString(AppDatabase.roleName);
+      loginTenantId = storage.getString(AppDatabase.tenantId);
       print('role $role');
       print('loginTenantId $loginTenantId');
     } catch (e) {
@@ -134,7 +135,7 @@ class _FullMapScreenState extends ConsumerState<FullMapScreen>
                       excludeSelected: false,
                       onChanged: (value) {
                         log('changing value to: ${value.tenantName}');
-                        mqttHandler.connect(this);
+                        mqttHandler.connect("", this);
                         ref.read(tenantDataStateProvider.notifier).state =
                             value;
                       },

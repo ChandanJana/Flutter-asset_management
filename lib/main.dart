@@ -13,7 +13,7 @@ import 'package:mindteck_iot/utils/database_helper.dart';
 import 'package:mindteck_iot/utils/utils.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'screen/login_screen.dart';
 
 var kColorScheme = ColorScheme.fromSeed(
@@ -35,11 +35,19 @@ class AssetHttpOverrides extends HttpOverrides {
 }
 
 void main() async {
+  if (Platform.isWindows || Platform.isLinux) {
+    // Initialize FFI
+    sqfliteFfiInit();
+  }
+  // Change the default factory. On iOS/Android, if not using `sqlite_flutter_lib` you can forget
+  // this step, it will use the sqlite version available on the system.
+  databaseFactory = databaseFactoryFfi;
   WidgetsFlutterBinding.ensureInitialized();
+  // enableFlutterDriverExtension();
   HttpOverrides.global = AssetHttpOverrides();
   // initialization SharedPreferences
   final SharedPreferences prefs = await SharedPreferences.getInstance();
-  Utils().setupLogging();
+  //Utils().setupLogging();
   runApp(ProviderScope(
     // override SharedPreferences provider with correct value
     overrides: [
@@ -73,6 +81,13 @@ class _IOTManagementAppState extends ConsumerState<IOTManagementApp> {
 // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    // final ThemeMode themeMode =
+    // MediaQuery.of(context).platformBrightness == Brightness.dark
+    //     ? ThemeMode.dark
+    //     : ThemeMode.light;
+    //
+    // final bool isDarkMode = themeMode == ThemeMode.dark;
+
     final bool isDarkMode = ref.watch(appThemeProvider).getTheme();
 
     return MaterialApp(
@@ -81,13 +96,12 @@ class _IOTManagementAppState extends ConsumerState<IOTManagementApp> {
       themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
       theme: ThemeData.light().copyWith(
         useMaterial3: true,
-        //scaffoldBackgroundColor: Color.fromARGB(255, 145, 163, 122),
         colorScheme: kColorScheme,
         appBarTheme: const AppBarTheme().copyWith(
           backgroundColor: kColorScheme.onPrimaryContainer,
           foregroundColor: kColorScheme.primaryContainer,
         ),
-        popupMenuTheme: PopupMenuThemeData(
+        popupMenuTheme: const PopupMenuThemeData(
           shape: Border(),
           elevation: 10,
           enableFeedback: true,
@@ -146,24 +160,6 @@ class _IOTManagementAppState extends ConsumerState<IOTManagementApp> {
       darkTheme: ThemeData.dark().copyWith(
         useMaterial3: true,
         colorScheme: kDarkColorScheme,
-        /*appBarTheme: const AppBarTheme().copyWith(
-          backgroundColor: kDarkColorScheme.onPrimaryContainer,
-          foregroundColor: kDarkColorScheme.primaryContainer,
-        ),
-        inputDecorationTheme: const InputDecorationTheme(
-          enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(width: 3, color: Colors.greenAccent),
-            borderRadius: BorderRadius.all(
-              Radius.circular(10.0),
-            ),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(width: 3, color: Colors.amberAccent),
-            borderRadius: BorderRadius.all(
-              Radius.circular(10.0),
-            ),
-          ),
-        ),*/
         inputDecorationTheme: InputDecorationTheme(
           enabledBorder: OutlineInputBorder(
             borderSide: BorderSide(

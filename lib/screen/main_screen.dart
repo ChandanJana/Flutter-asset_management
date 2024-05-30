@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:mindteck_iot/models/change_password_model.dart';
@@ -16,10 +15,13 @@ import 'package:mindteck_iot/screen/Dashboard/guest_dashboard_screen.dart';
 import 'package:mindteck_iot/screen/Dashboard/operator_dashboard_screen.dart';
 import 'package:mindteck_iot/screen/Dashboard/system_admin_dashboard_screen.dart';
 import 'package:mindteck_iot/screen/application_screen.dart';
-import 'package:mindteck_iot/screen/asset_screen.dart';
-import 'package:mindteck_iot/screen/asset_track_dashboard_screen.dart';
+import 'package:mindteck_iot/screen/asset_tracking/asset_screen.dart';
+import 'package:mindteck_iot/screen/asset_tracking/asset_track_dashboard_screen.dart';
 import 'package:mindteck_iot/screen/dashboard/business_admin_dashboard_screen.dart';
-import 'package:mindteck_iot/screen/device_screen.dart';
+import 'package:mindteck_iot/screen/device/device_screen.dart';
+import 'package:mindteck_iot/screen/environmental_monitoring/environmental_dashboard_screen.dart';
+import 'package:mindteck_iot/screen/environmental_monitoring/geo_view_screen.dart';
+import 'package:mindteck_iot/screen/environmental_monitoring/sensor_view_screen.dart';
 import 'package:mindteck_iot/screen/login_screen.dart';
 import 'package:mindteck_iot/screen/sites_screen.dart';
 import 'package:mindteck_iot/screen/tenant_screen.dart';
@@ -31,9 +33,10 @@ import 'package:mindteck_iot/widgets/cancel_button.dart';
 import 'package:mindteck_iot/widgets/error_snackbar.dart';
 import 'package:mindteck_iot/widgets/main_drawer.dart';
 import 'package:mindteck_iot/widgets/submit_button.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-import 'device_allocation.dart';
-import 'locate_asset_screen.dart';
+import 'asset_tracking/locate_asset_screen.dart';
+import 'device/device_allocation.dart';
 
 class MainScreen extends ConsumerStatefulWidget {
   const MainScreen({super.key, required this.loginModel});
@@ -63,15 +66,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     Navigator.pop(context);
 
     if (identifier == AppText.dashBoard) {
-      /// pushReplacement will replace the previous/active screen in stack and
-      /// push will add the screen on top of previous/active screen
-      /// in stack and back button will come automatically
-      /// when user back it will return Map<Filter, bool> value and store to result
-      // Close the drawer
-      // Navigator.pop(context);
     } else if (identifier == AppText.device) {
-      // By default Category page showing that why If we are choose the food then close the drawer
-      //Navigator.pop(context);
       Navigator.of(context).push(
         PageRouteBuilder(
           pageBuilder: (BuildContext context, Animation<double> animation,
@@ -82,44 +77,18 @@ class _MainScreenState extends ConsumerState<MainScreen> {
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             // Right to left
             const begin = Offset(1.0, 0.0);
-
-            /// Left to Right
-            //const begin = Offset(-1.0, 0.0);
-            /// Top to Bottom
-            //const begin = Offset(0.0, -1.0);
-            /// Bottom to Top
-            //const begin = Offset(0.0, 1.0);
             const end = Offset.zero;
-
-            /// Curves to specify the timing of transitions and animations.
-            /// Curves are used to define how the animation values change
-            /// over time.
             const curve = Curves.ease;
-
             var tween =
                 Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-
             return SlideTransition(
               position: animation.drive(tween),
               child: child,
             );
-
-            /*var begin = 0.0;
-            var end = 1.0;
-            var curve = Curves.ease;
-
-            var tween =
-                Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-            return ScaleTransition(
-              scale: animation.drive(tween),
-              child: child,
-            );*/
           },
         ),
       );
     } else if (identifier == AppText.deviceallocation) {
-      // By default Category page showing that why If we are choose the food then close the drawer
-      //Navigator.pop(context);
       Navigator.of(context).push(
         PageRouteBuilder(
           pageBuilder: (BuildContext context, Animation<double> animation,
@@ -130,18 +99,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             // Right to left
             const begin = Offset(1.0, 0.0);
-
-            /// Left to Right
-            //const begin = Offset(-1.0, 0.0);
-            /// Top to Bottom
-            //const begin = Offset(0.0, -1.0);
-            /// Bottom to Top
-            //const begin = Offset(0.0, 1.0);
             const end = Offset.zero;
-
-            /// Curves to specify the timing of transitions and animations.
-            /// Curves are used to define how the animation values change
-            /// over time.
             const curve = Curves.ease;
 
             var tween =
@@ -151,17 +109,6 @@ class _MainScreenState extends ConsumerState<MainScreen> {
               position: animation.drive(tween),
               child: child,
             );
-
-            /*var begin = 0.0;
-            var end = 1.0;
-            var curve = Curves.ease;
-
-            var tween =
-                Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-            return ScaleTransition(
-              scale: animation.drive(tween),
-              child: child,
-            );*/
           },
         ),
       );
@@ -178,18 +125,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             // Right to left
             const begin = Offset(1.0, 0.0);
-
-            /// Left to Right
-            //const begin = Offset(-1.0, 0.0);
-            /// Top to Bottom
-            //const begin = Offset(0.0, -1.0);
-            /// Bottom to Top
-            //const begin = Offset(0.0, 1.0);
             const end = Offset.zero;
-
-            /// Curves to specify the timing of transitions and animations.
-            /// Curves are used to define how the animation values change
-            /// over time.
             const curve = Curves.ease;
 
             var tween =
@@ -199,23 +135,10 @@ class _MainScreenState extends ConsumerState<MainScreen> {
               position: animation.drive(tween),
               child: child,
             );
-
-            /*var begin = 0.0;
-            var end = 1.0;
-            var curve = Curves.ease;
-
-            var tween =
-                Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-            return ScaleTransition(
-              scale: animation.drive(tween),
-              child: child,
-            );*/
           },
         ),
       );
     } else if (identifier == AppText.sites) {
-      // By default Category page showing that why If we are choose the food then close the drawer
-      //Navigator.pop(context);
       Navigator.of(context).push(
         PageRouteBuilder(
           pageBuilder: (BuildContext context, Animation<double> animation,
@@ -226,18 +149,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             // Right to left
             const begin = Offset(1.0, 0.0);
-
-            /// Left to Right
-            //const begin = Offset(-1.0, 0.0);
-            /// Top to Bottom
-            //const begin = Offset(0.0, -1.0);
-            /// Bottom to Top
-            //const begin = Offset(0.0, 1.0);
             const end = Offset.zero;
-
-            /// Curves to specify the timing of transitions and animations.
-            /// Curves are used to define how the animation values change
-            /// over time.
             const curve = Curves.ease;
 
             var tween =
@@ -247,17 +159,6 @@ class _MainScreenState extends ConsumerState<MainScreen> {
               position: animation.drive(tween),
               child: child,
             );
-
-            /*var begin = 0.0;
-            var end = 1.0;
-            var curve = Curves.ease;
-
-            var tween =
-                Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-            return ScaleTransition(
-              scale: animation.drive(tween),
-              child: child,
-            );*/
           },
         ),
       );
@@ -274,18 +175,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             // Right to left
             const begin = Offset(1.0, 0.0);
-
-            /// Left to Right
-            //const begin = Offset(-1.0, 0.0);
-            /// Top to Bottom
-            //const begin = Offset(0.0, -1.0);
-            /// Bottom to Top
-            //const begin = Offset(0.0, 1.0);
             const end = Offset.zero;
-
-            /// Curves to specify the timing of transitions and animations.
-            /// Curves are used to define how the animation values change
-            /// over time.
             const curve = Curves.ease;
 
             var tween =
@@ -295,23 +185,10 @@ class _MainScreenState extends ConsumerState<MainScreen> {
               position: animation.drive(tween),
               child: child,
             );
-
-            /*var begin = 0.0;
-            var end = 1.0;
-            var curve = Curves.ease;
-
-            var tween =
-                Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-            return ScaleTransition(
-              scale: animation.drive(tween),
-              child: child,
-            );*/
           },
         ),
       );
     } else if (identifier == AppText.tenants) {
-      // By default Category page showing that why If we are choose the food then close the drawer
-      //Navigator.pop(context);
       Navigator.of(context).push(
         PageRouteBuilder(
           pageBuilder: (BuildContext context, Animation<double> animation,
@@ -322,18 +199,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             // Right to left
             const begin = Offset(1.0, 0.0);
-
-            /// Left to Right
-            //const begin = Offset(-1.0, 0.0);
-            /// Top to Bottom
-            //const begin = Offset(0.0, -1.0);
-            /// Bottom to Top
-            //const begin = Offset(0.0, 1.0);
             const end = Offset.zero;
-
-            /// Curves to specify the timing of transitions and animations.
-            /// Curves are used to define how the animation values change
-            /// over time.
             const curve = Curves.ease;
 
             var tween =
@@ -343,23 +209,10 @@ class _MainScreenState extends ConsumerState<MainScreen> {
               position: animation.drive(tween),
               child: child,
             );
-
-            /*var begin = 0.0;
-            var end = 1.0;
-            var curve = Curves.ease;
-
-            var tween =
-                Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-            return ScaleTransition(
-              scale: animation.drive(tween),
-              child: child,
-            );*/
           },
         ),
       );
     } else if (identifier == Constants.allAssets) {
-      // By default Category page showing that why If we are choose the food then close the drawer
-      //Navigator.pop(context);
       Navigator.of(context).push(
         PageRouteBuilder(
           pageBuilder: (BuildContext context, Animation<double> animation,
@@ -370,18 +223,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             // Right to left
             const begin = Offset(1.0, 0.0);
-
-            /// Left to Right
-            //const begin = Offset(-1.0, 0.0);
-            /// Top to Bottom
-            //const begin = Offset(0.0, -1.0);
-            /// Bottom to Top
-            //const begin = Offset(0.0, 1.0);
             const end = Offset.zero;
-
-            /// Curves to specify the timing of transitions and animations.
-            /// Curves are used to define how the animation values change
-            /// over time.
             const curve = Curves.ease;
 
             var tween =
@@ -391,23 +233,10 @@ class _MainScreenState extends ConsumerState<MainScreen> {
               position: animation.drive(tween),
               child: child,
             );
-
-            /*var begin = 0.0;
-            var end = 1.0;
-            var curve = Curves.ease;
-
-            var tween =
-                Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-            return ScaleTransition(
-              scale: animation.drive(tween),
-              child: child,
-            );*/
           },
         ),
       );
     } else if (identifier == Constants.locateAsset) {
-      // By default Category page showing that why If we are choose the food then close the drawer
-      //Navigator.pop(context);
       Navigator.of(context).push(
         PageRouteBuilder(
           pageBuilder: (BuildContext context, Animation<double> animation,
@@ -418,18 +247,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             // Right to left
             const begin = Offset(1.0, 0.0);
-
-            /// Left to Right
-            //const begin = Offset(-1.0, 0.0);
-            /// Top to Bottom
-            //const begin = Offset(0.0, -1.0);
-            /// Bottom to Top
-            //const begin = Offset(0.0, 1.0);
             const end = Offset.zero;
-
-            /// Curves to specify the timing of transitions and animations.
-            /// Curves are used to define how the animation values change
-            /// over time.
             const curve = Curves.ease;
 
             var tween =
@@ -439,23 +257,10 @@ class _MainScreenState extends ConsumerState<MainScreen> {
               position: animation.drive(tween),
               child: child,
             );
-
-            /*var begin = 0.0;
-            var end = 1.0;
-            var curve = Curves.ease;
-
-            var tween =
-                Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-            return ScaleTransition(
-              scale: animation.drive(tween),
-              child: child,
-            );*/
           },
         ),
       );
     } else if (identifier == Constants.assetDashBoard) {
-      // By default Category page showing that why If we are choose the food then close the drawer
-      //Navigator.pop(context);
       Navigator.of(context).push(
         PageRouteBuilder(
           pageBuilder: (BuildContext context, Animation<double> animation,
@@ -466,18 +271,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             // Right to left
             const begin = Offset(1.0, 0.0);
-
-            /// Left to Right
-            //const begin = Offset(-1.0, 0.0);
-            /// Top to Bottom
-            //const begin = Offset(0.0, -1.0);
-            /// Bottom to Top
-            //const begin = Offset(0.0, 1.0);
             const end = Offset.zero;
-
-            /// Curves to specify the timing of transitions and animations.
-            /// Curves are used to define how the animation values change
-            /// over time.
             const curve = Curves.ease;
 
             var tween =
@@ -487,17 +281,104 @@ class _MainScreenState extends ConsumerState<MainScreen> {
               position: animation.drive(tween),
               child: child,
             );
-
-            /*var begin = 0.0;
-            var end = 1.0;
-            var curve = Curves.ease;
+          },
+        ),
+      );
+    } else if (identifier == Constants.environmental_monitoring_dashboard) {
+      Navigator.of(context).push(
+        PageRouteBuilder(
+          pageBuilder: (BuildContext context, Animation<double> animation,
+              Animation<double> secondaryAnimation) {
+            return EnvironmentalDashboardScreen();
+          },
+          transitionDuration: const Duration(milliseconds: 500),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            // Right to left
+            const begin = Offset(1.0, 0.0);
+            const end = Offset.zero;
+            const curve = Curves.ease;
 
             var tween =
                 Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-            return ScaleTransition(
-              scale: animation.drive(tween),
+
+            return SlideTransition(
+              position: animation.drive(tween),
               child: child,
-            );*/
+            );
+          },
+        ),
+      );
+    }
+    // else if (identifier == Constants.sensorManagement) {
+    //   Navigator.of(context).push(
+    //     PageRouteBuilder(
+    //       pageBuilder: (BuildContext context, Animation<double> animation,
+    //           Animation<double> secondaryAnimation) {
+    //         return  SensorManagementScreen();
+    //       },
+    //       transitionDuration: const Duration(milliseconds: 500),
+    //       transitionsBuilder: (context, animation, secondaryAnimation, child) {
+    //         // Right to left
+    //         const begin = Offset(1.0, 0.0);
+    //         const end = Offset.zero;
+    //         const curve = Curves.ease;
+    //
+    //         var tween =
+    //         Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+    //
+    //         return SlideTransition(
+    //           position: animation.drive(tween),
+    //           child: child,
+    //         );
+    //       },
+    //     ),
+    //   );
+    // }
+    else if (identifier == Constants.geoView) {
+      Navigator.of(context).push(
+        PageRouteBuilder(
+          pageBuilder: (BuildContext context, Animation<double> animation,
+              Animation<double> secondaryAnimation) {
+            return GeoviewScreen();
+          },
+          transitionDuration: const Duration(milliseconds: 500),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            // Right to left
+            const begin = Offset(1.0, 0.0);
+            const end = Offset.zero;
+            const curve = Curves.ease;
+
+            var tween =
+                Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+
+            return SlideTransition(
+              position: animation.drive(tween),
+              child: child,
+            );
+          },
+        ),
+      );
+    } else if (identifier == Constants.sensorView) {
+      Navigator.of(context).push(
+        PageRouteBuilder(
+          pageBuilder: (BuildContext context, Animation<double> animation,
+              Animation<double> secondaryAnimation) {
+            return SensorviewScreen();
+          },
+          transitionDuration: const Duration(milliseconds: 500),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            // Right to left
+            const begin = Offset(1.0, 0.0);
+            const end = Offset.zero;
+            const curve = Curves.ease;
+
+            var tween =
+                Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+
+            return SlideTransition(
+              position: animation.drive(tween),
+              child: child,
+            );
           },
         ),
       );
@@ -508,9 +389,9 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     /// Here we getting/fetch data from server
     String logoutUrl = '${AppApi.logoutApi}$userId';
     // Create storage
-    const storage = FlutterSecureStorage();
+    SharedPreferences storage = await SharedPreferences.getInstance();
     // Read token value
-    String? authToken = await storage.read(key: AppDatabase.token);
+    String? authToken = storage.getString(AppDatabase.token);
 
     print('authToken $authToken');
     final Map<String, String> headers = {
@@ -526,7 +407,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
       var responseBody = json.decode(response.body);
       print('Logout fetch. $responseBody');
       // Delete all
-      await storage.deleteAll();
+      storage.clear();
       return true;
     } else {
       // ServerErrorPopup.showServerError(this.context, 'Server unreachable. Check your internet source');
@@ -1005,9 +886,9 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     /// Here we getting/fetch data from server
     const String changePasswordUrl = AppApi.changePasswordApi;
     // Create storage
-    const storage = FlutterSecureStorage();
+    SharedPreferences storage = await SharedPreferences.getInstance();
     // Read userId value
-    String? userId = await storage.read(key: AppDatabase.userId);
+    String? userId = storage.getString(AppDatabase.userId);
 
     print('userId $userId');
 
@@ -1038,7 +919,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
       print('Change Password fetch. $responseBody.responseMessage');
       if (responseBody.responseCode == 200) {
         // Delete all
-        await storage.deleteAll();
+        storage.clear();
         _currentController.clear();
         _newController.clear();
         _confirmController.clear();

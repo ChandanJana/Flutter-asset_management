@@ -40,27 +40,27 @@ class _CircularProgressState extends ConsumerState<UpTimeProgressWidget> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Average Up Time',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: isDarkMode ? Colors.white : Colors.black,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Average Up Time',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: isDarkMode ? Colors.white : Colors.black,
+                      ),
                     ),
-                  ),
-                  circularChartData.when(
-                    data: (data) {
-                      //List<PieChartTenantEntities> pieList = data.map((e) => e).toList();
-                      print('Circular data $data');
-                      if (data == null) {
-                        return Expanded(
-                          child: Container(
+                    circularChartData.when(
+                      data: (data) {
+                        // List<PieChartTenantEntities> pieList = data.map((e) => e).toList();
+                        print('Circular data $data');
+                        if (data == null) {
+                          return Container(
                             child: Text(
-                              textAlign: TextAlign.center,
                               'No data available',
+                              textAlign: TextAlign.center,
                               style: GoogleFonts.latoTextTheme()
                                   .titleLarge!
                                   .copyWith(
@@ -71,29 +71,24 @@ class _CircularProgressState extends ConsumerState<UpTimeProgressWidget> {
                                     fontSize: 15,
                                   ),
                             ),
-                          ),
-                        );
-                      }
-                      return Expanded(
-                        child: Column(
+                          );
+                        }
+                        return Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Expanded(
-                              flex:1,
-                              child: Text(
-                                textAlign: TextAlign.center,
-                                '0',
-                                style: GoogleFonts.latoTextTheme()
-                                    .titleLarge!
-                                    .copyWith(
-                                      fontWeight: FontWeight.normal,
-                                      color: isDarkMode
-                                          ? Colors.white
-                                          : Colors.black,
-                                      fontSize: 30,
-                                    ),
-                              ),
+                            Text(
+                              '0',
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.latoTextTheme()
+                                  .titleLarge!
+                                  .copyWith(
+                                    fontWeight: FontWeight.normal,
+                                    color: isDarkMode
+                                        ? Colors.white
+                                        : Colors.black,
+                                    fontSize: 30,
+                                  ),
                             ),
                             RichText(
                               text: TextSpan(
@@ -121,7 +116,7 @@ class _CircularProgressState extends ConsumerState<UpTimeProgressWidget> {
                                         ),
                                   ),
                                   TextSpan(
-                                    text: '    Since last 24 hour',
+                                    text: '    Since last 24 hours',
                                     style: GoogleFonts.latoTextTheme()
                                         .titleLarge!
                                         .copyWith(
@@ -134,27 +129,27 @@ class _CircularProgressState extends ConsumerState<UpTimeProgressWidget> {
                               ),
                             ),
                           ],
-                        ),
-                      );
-                    },
-                    error: (error, stackTrace) {
-                      return Center(
-                        child: GraphError(
-                          errorMessage: error.toString(),
-                          onRetry: () {},
-                        ),
-                      );
-                    },
-                    loading: () {
-                      return Center(
-                        child: LoadingAnimationWidget.staggeredDotsWave(
-                          color: Colors.blueAccent,
-                          size: 70,
-                        ),
-                      );
-                    },
-                  ),
-                ],
+                        );
+                      },
+                      error: (error, stackTrace) {
+                        return Center(
+                          child: GraphError(
+                            errorMessage: error.toString(),
+                            onRetry: () {},
+                          ),
+                        );
+                      },
+                      loading: () {
+                        return Center(
+                          child: LoadingAnimationWidget.staggeredDotsWave(
+                            color: Colors.blueAccent,
+                            size: 70,
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
               ),
             ),
             Container(

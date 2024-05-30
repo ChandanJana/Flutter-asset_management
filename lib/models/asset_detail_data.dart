@@ -4,7 +4,7 @@
 ///
 
 class AssetDetailData {
-  String? nId;
+  String? _id;
   String? timestamp;
   String? assetId;
   String? zoneId;
@@ -22,25 +22,25 @@ class AssetDetailData {
   bool? isLevelOutDoor;
 
   AssetDetailData(
-      {this.nId,
-        this.timestamp,
-        this.assetId,
-        this.zoneId,
-        this.latitude,
-        this.longitude,
-        this.assetName,
-        this.zoneName,
-        this.trackerDeviceName,
-        this.hardwareID,
-        this.locationName,
-        this.siteName,
-        this.siteId,
-        this.levelID,
-        this.levelName,
-        this.isLevelOutDoor});
+      this._id,
+      this.timestamp,
+      this.assetId,
+      this.zoneId,
+      this.latitude,
+      this.longitude,
+      this.assetName,
+      this.zoneName,
+      this.trackerDeviceName,
+      this.hardwareID,
+      this.locationName,
+      this.siteName,
+      this.siteId,
+      this.levelID,
+      this.levelName,
+      this.isLevelOutDoor);
 
   AssetDetailData.fromJson(Map<String, dynamic> json) {
-    nId = json['_id'];
+    _id = json['_id'];
     timestamp = json['timestamp'];
     assetId = json['assetId'];
     zoneId = json['zoneId'];
@@ -60,7 +60,7 @@ class AssetDetailData {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['_id'] = this.nId;
+    data['_id'] = this._id;
     data['timestamp'] = this.timestamp;
     data['assetId'] = this.assetId;
     data['zoneId'] = this.zoneId;

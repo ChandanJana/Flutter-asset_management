@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -67,10 +66,10 @@ class _FilterDrawerState extends ConsumerState<FilterDrawer> {
     const String deviceCategoryListUrl = AppApi.getDeviceCategory;
 
     // Create storage
-    const storage = FlutterSecureStorage();
+    SharedPreferences storage = await SharedPreferences.getInstance();
 
     // Read token value
-    String? authToken = await storage.read(key: AppDatabase.token);
+    String? authToken = storage.getString(AppDatabase.token);
     if (kDebugMode) {
       print('authToken $authToken');
     }
@@ -120,10 +119,10 @@ class _FilterDrawerState extends ConsumerState<FilterDrawer> {
     const String devicestatusListUrl = AppApi.getDeviceLifeCycle;
 
     // Create storage
-    const storage = FlutterSecureStorage();
+    SharedPreferences storage = await SharedPreferences.getInstance();
 
     // Read token value
-    String? authToken = await storage.read(key: AppDatabase.token);
+    String? authToken = storage.getString(AppDatabase.token);
     if (kDebugMode) {
       print('authToken $authToken');
     }
